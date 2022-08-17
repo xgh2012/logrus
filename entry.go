@@ -291,8 +291,26 @@ func (entry *Entry) write() {
 		fmt.Fprintf(os.Stderr, "Failed to obtain reader, %v\n", err)
 		return
 	}
-	if _, err := entry.Logger.Out.Write(serialized); err != nil {
+
+	/*if _, err := entry.Logger.Out.Write(serialized); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to write to log, %v\n", err)
+	}*/
+
+	serializers := strings.Split(string(serialized), "\\n")
+	ln := len(serializers)
+	if ln == 1 {
+		if _, err := entry.Logger.Out.Write(serialized); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to write to log, %v\n", err)
+		}
+	} else {
+		for index, item := range serializers {
+			if index != ln-1 {
+				item += "\n"
+			}
+			if _, err := entry.Logger.Out.Write([]byte(item)); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to write to log, %v\n", err)
+			}
+		}
 	}
 }
 
